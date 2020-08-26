@@ -706,13 +706,13 @@ ngx_http_bot_protection_handler(ngx_http_request_t *r) {
         ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                        "bot_protection user passed test");
         count_success_req++;
-        ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "bot_protection req count success: %l", count_success_req);
+        ngx_log_error(NGX_LOG_INFO, r->connection->log, 0, "bot_protection req count success: %l", count_success_req);
         ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                        "bot_protection req count success: %l", count_success_req);
         return NGX_DECLINED;
     } else {
         count_failed_req++;
-        ngx_log_error(NGX_LOG_ERR, r->connection->log, 0, "bot_protection req count failed: %l", count_failed_req);
+        ngx_log_error(NGX_LOG_INFO, r->connection->log, 0, "bot_protection req count failed: %l", count_failed_req);
         ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                        "bot_protection req count failed: %l", count_failed_req);
     }
@@ -911,9 +911,7 @@ ngx_http_bot_protection_handler(ngx_http_request_t *r) {
     redirect:
 
 
-    ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection buf len: %d", len);
-    ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection redirectig user to %s", buf);
-
+    ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection buf %s len: %d", buf, len);
 
     if (r->http_version < NGX_HTTP_VERSION_11) {
         r->headers_out.status = NGX_HTTP_MOVED_TEMPORARILY;
@@ -957,7 +955,8 @@ ngx_http_bot_protection_got_variable(ngx_http_request_t *r,
     ngx_http_bot_protection_ctx_t *ctx;
     ngx_http_bot_protection_conf_t *conf;
 
-    ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection ngx_http_bot_protection_got_variable");
+    ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                   "bot_protection ngx_http_bot_protection_got_variable");
 
     conf = ngx_http_get_module_loc_conf(r->main, ngx_http_bot_protection_module);
     if (conf->enable == BOT_PROTECTION_OFF) {
@@ -1443,10 +1442,8 @@ ngx_http_bot_protection_get_uid(ngx_http_request_t *r, ngx_http_bot_protection_c
 
     memset(token, 0, 64 + 1);
     memset(key, 0, 32 + 1);
-    ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection module version %s", MODULE_VERSION);
-#if (NGX_DEBUG)
+    ngx_log_debug(NGX_LOG_INFO, r->connection->log, 0, "bot_protection version %s", MODULE_VERSION);
     ngx_table_elt_t **cookies;
-#endif
     ngx_http_bot_protection_conf_t *ucf = conf;
     ngx_http_bot_protection_ctx_t *ctx;
     struct sockaddr_in *sin;
@@ -1594,9 +1591,9 @@ ngx_http_bot_protection_get_uid(ngx_http_request_t *r, ngx_http_bot_protection_c
     if (ngx_strcmp(&cookies[n]->value, DEFAULT_COOKIE_NAME)) { // yup, ironfox cookie found
 
 
-        ngx_log_debug(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-                      "bot_protection client sent cookies \"%V\"",
-                      &cookies[n]->value);
+        ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                       "bot_protection client sent cookies \"%V\"",
+                       &cookies[n]->value);
 
 
     } else {
@@ -1658,10 +1655,10 @@ ngx_http_bot_protection_get_uid(ngx_http_request_t *r, ngx_http_bot_protection_c
         memset(cookie_holder, 0, cookie_len + 1);
         ngx_snprintf(cookie_holder, cookie_len, "%V", &cookies[n]->value);
         cookie_holder[cookie_len + 1] = '\0';
-        ngx_log_debug(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection cookie holder %s", cookie_holder);
+        ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection cookie holder %s", cookie_holder);
 
         if (strstr(cookie_holder, TOKEN_NAME) != NULL && strstr(cookie_holder, KEY_NAME) != NULL) {
-            ngx_log_debug(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection token and key exists in cookie");
+            ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection token and key exists in cookie");
             // extract encrypted token
             char *token_ptr = strstr(cookie_holder, TOKEN_NAME);
             int token_index = token_ptr - cookie_holder;

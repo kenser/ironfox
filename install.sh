@@ -21,22 +21,50 @@ MODULES_PATH=$IRON_FOX_ROOT/modules
 SETUP_PATH=/home/ironfox/iron
 BIN_PATH=/home/ironfox/iron/sbin
 
-echo "Start setup..."
+MODE_DEBUG='--with-debug'
+HAVE_DEBUG="no"
+
+for arg in $*; do
+  if [ $arg = $MODE_DEBUG ]; then
+    NGX_ARGS=$MODE_DEBUG
+    HAVE_DEBUG="yes"
+    break
+  else
+    HAVE_DEBUG="no"
+    unset NGX_ARGS
+  fi
+done
+if [ $HAVE_DEBUG = "yes" ]; then
+  echo "Start setup, debug enabled..."
+else
+  echo "Start setup..."
+fi
 if [[ $(id -u) -ne 0 ]]; then
-  echo "error: please run as the installer with root privilege. exit(1)"
+  clear
+  echo "
+[IronFox Setup]
+Version 0.0.5
+CodeName: The Desert Fox
+
+  setup params:
+  --with-debug        Setup with debug enabled mode.
+
+_____________________________________________________________
+Note: installer MUST be run with root privilege
+  "
   exit 1
 fi
 echo "shutdown service and clean up path..."
 sudo rm -R $SETUP_PATH
-sudo rm -R  nginx-1.19.2
+sudo rm -R nginx-1.19.2
 tar xfv nginx-1.19.2.tar.gz
 sudo systemctl stop innovera
-sudo kill 9 `ps -aux | grep nginx | awk '{print $2}'`
+sudo kill 9 $(ps -aux | grep nginx | awk '{print $2}')
 
 #build embedded file
 echo "#!/bin/bash
 sudo java -jar $SETUP_PATH/sbin/panel.jar  --spring.config.location=$SETUP_PATH/sbin/application.properties
-" > manager/runservice.sh
+" >manager/runservice.sh
 
 echo "[Unit]
 Description=IronFox panel service
@@ -54,7 +82,7 @@ Restart=on-failure
 RestartSec=5
 [Install]
 WantedBy=multi-user.target
-" > manager/innovera.service
+" >manager/innovera.service
 
 echo "check and setup dependencies..."
 sudo apt install build-essential
@@ -68,23 +96,41 @@ sudo apt install openjdk-8-jdk
 #todo install postgresql, db and config username
 
 echo "apply iptables settings..."
-#sudo iptables -P INPUT ACCEPT
-#sudo iptables -P OUTPUT ACCEPT
-#sudo iptables -F
-#sudo iptables -A INPUT -i lo -j ACCEPT
-#sudo iptables -A OUTPUT -o lo -j ACCEPT
-#
-#sudo iptables -t nat -F
-##sudo iptables -t nat -A PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 443
-#sudo iptables -A INPUT -p tcp -m tcp --dport 443 -j ACCEPT
-#sudo iptables -A OUTPUT -p tcp -m tcp --sport 443 -j ACCEPT
-#
-#sudo iptables -A INPUT -p tcp -m tcp --dport 8080 -j ACCEPT
-#sudo iptables -A OUTPUT -p tcp -m tcp --sport 8080 -j ACCEPT
-#sudo iptables -A INPUT -p tcp -m tcp --dport 22 -j ACCEPT
-#sudo iptables -A OUTPUT -p tcp -m tcp --sport 22 -j ACCEPT
-#sudo iptables -P INPUT DROP
-#sudo iptables -P OUTPUT DROP
+sudo iptables -P INPUT ACCEPT
+sudo iptables -P OUTPUT ACCEPT
+# flush iptables
+sudo iptables -F
+sudo iptables -X
+sudo iptables -t nat -F
+sudo iptables -t nat -X
+sudo iptables -t mangle -F
+sudo iptables -t mangle -X
+#allow loopback
+sudo iptables -A INPUT -i lo -j ACCEPT
+sudo iptables -A OUTPUT -o lo -j ACCEPT
+#icmp
+sudo iptables -A OUTPUT -p icmp -m state --state NEW,ESTABLISHED,RELATED -j ACCEPT
+sudo iptables -A INPUT  -p icmp -m state --state ESTABLISHED,RELATED     -j ACCEPT
+#dns
+sudo iptables -A OUTPUT -p udp  --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
+sudo iptables -A INPUT  -p udp  --sport 53 -m state --state ESTABLISHED     -j ACCEPT
+sudo iptables -A OUTPUT -p tcp  --dport 53 -m state --state NEW,ESTABLISHED -j ACCEPT
+sudo iptables -A INPUT  -p tcp  --sport 53 -m state --state ESTABLISHED     -j ACCEPT
+#https
+sudo iptables -A OUTPUT -p tcp  --dport 443 -m state --state NEW,ESTABLISHED -j ACCEPT
+sudo iptables -A INPUT  -p tcp  --sport 443 -m state --state ESTABLISHED     -j ACCEPT
+#dashboard
+sudo iptables -A OUTPUT -p tcp  --dport 8080 -m state --state NEW,ESTABLISHED -j ACCEPT
+sudo iptables -A INPUT  -p tcp  --sport 8080 -m state --state ESTABLISHED     -j ACCEPT
+#http
+sudo iptables -A OUTPUT -p tcp  --dport 80 -m state --state NEW,ESTABLISHED -j ACCEPT
+sudo iptables -A INPUT  -p tcp  --sport 80 -m state --state ESTABLISHED     -j ACCEPT
+#ssh
+sudo iptables -A OUTPUT -p tcp  --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
+sudo iptables -A INPUT  -p tcp  --sport 22 -m state --state ESTABLISHED     -j ACCEPT
+# policy
+sudo iptables -P INPUT DROP
+sudo iptables -P OUTPUT DROP
 
 echo "compiling source..."
 sudo mkdir $SETUP_PATH
@@ -93,22 +139,20 @@ sudo mkdir $SETUP_PATH/cert/
 sudo mkdir $SETUP_PATH/html/
 
 echo "apply nginx patch..."
-patch  -p0 < $IRON_FOX_ROOT/nginx.patch
+patch -p0 <$IRON_FOX_ROOT/nginx.patch
 
 cd $NGINX_PATH
-./configure --prefix=$SETUP_PATH --with-ld-opt='-Wl,-rpath,/usr/local/lib' \
+./configure $NGX_ARGS --prefix=$SETUP_PATH --with-ld-opt='-Wl,-rpath,/usr/local/lib' \
   --sbin-path=$SETUP_PATH/sbin/ \
   --with-http_sub_module \
-  --with-debug \
   --with-http_ssl_module \
   --with-compat \
   --add-dynamic-module=${MODULES_PATH}/ngx_http_bot_protection_module \
   --add-dynamic-module=${MODULES_PATH}/ngx_http_header_inspect \
-  --add-dynamic-module=${MODULES_PATH}/replace-filter-nginx-module 
+  --add-dynamic-module=${MODULES_PATH}/replace-filter-nginx-module
 
 make CFLAGS="-Wno-error=format-truncation"
 make CFLAGS="-Wno-error=format-truncation" install
-
 
 cd $IRON_FOX_ROOT
 echo "copy files..."

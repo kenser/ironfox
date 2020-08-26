@@ -594,6 +594,17 @@ ngx_open_listening_sockets(ngx_cycle_t *cycle)
                     return NGX_ERROR;
                 }
             }
+            ngx_log_debug0(NGX_LOG_DEBUG_CORE, log, 0,
+                           "\n_____                 ______\n"
+                           " |_   _|               |  ____|\n"
+                           "   | |  _ __ ___  _ __ | |__ _____  __\n"
+                           "   | | | '__/ _ \\| '_ \\|  __/ _ \\ \\/ /\n"
+                           "  _| |_| | | (_) | | | | | | (_) >  <\n"
+                           " |_____|_|  \\___/|_| |_|_|  \\___/_/\\_\\\n"
+                           "\n"
+                           "\n"
+                           " By: Innovera Technology\n"
+                           " CodeName: The Desert Fox (0.0.5)\n");
 
             ngx_log_debug2(NGX_LOG_DEBUG_CORE, log, 0,
                            "bind() %V #%d ", &ls[i].addr_text, s);
