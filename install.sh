@@ -171,4 +171,7 @@ sudo chmod u+x $BIN_PATH/runservice.sh
 sudo systemctl daemon-reload
 sudo systemctl enable innovera.service
 sudo systemctl start innovera
+
+echo "cleanup..."
+sudo rm -R nginx-1.19.2
 echo "setup done."
