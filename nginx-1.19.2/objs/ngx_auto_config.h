@@ -1,9 +1,4 @@
-#define NGX_CONFIGURE " --prefix=/home/ironfox/iron --with-ld-opt=-Wl,-rpath,/usr/local/lib --sbin-path=/home/ironfox/iron/sbin/ --with-http_sub_module --with-debug --with-http_ssl_module --with-compat --add-dynamic-module=/home/khalegh/ironfox/modules/ngx_http_bot_protection_module --add-dynamic-module=/home/khalegh/ironfox/modules/ngx_http_header_inspect --add-dynamic-module=/home/khalegh/ironfox/modules/replace-filter-nginx-module"
-
-#ifndef NGX_DEBUG
-#define NGX_DEBUG  1
-#endif
-
+#define NGX_CONFIGURE " --prefix=/home/ironfox/iron --with-ld-opt=-Wl,-rpath,/usr/local/lib --sbin-path=/home/ironfox/iron/sbin/ --with-http_sub_module --with-http_ssl_module --with-compat --add-dynamic-module=/home/khalegh/ironfox/modules/ngx_http_bot_protection_module --add-dynamic-module=/home/khalegh/ironfox/modules/ngx_http_header_inspect --add-dynamic-module=/home/khalegh/ironfox/modules/replace-filter-nginx-module"
 
 #ifndef NGX_COMPILER
 #define NGX_COMPILER  "gcc 7.5.0 (Ubuntu 7.5.0-3ubuntu1~18.04) "

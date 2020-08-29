@@ -16,7 +16,7 @@ include_directories(modules/ngx_http_captcha_module)
 include_directories(modules/ngx_http_header_inspect)
 include_directories(modules/ngx_http_vts)
 include_directories(modules/ngx_http_vts/src)
-include_directories(modules/ngx_Input_Validation_module)
+include_directories(modules/ngx_input_validation_module)
 include_directories(modules/replace-filter-nginx-module)
 include_directories(modules/replace-filter-nginx-module/src)
 include_directories(nginx-1.19.2)
@@ -49,7 +49,6 @@ add_executable(ironfox
         html/fingerprint.js
         html/hourglass.gif
         html/iron.js
-        html/sampleObfuscated.js
         html/sweet-alert.css
         html/sweet-alert.min.js
         manager/application.properties
@@ -143,9 +142,9 @@ add_executable(ironfox
         modules/ngx_http_vts/config
         modules/ngx_http_vts/LICENSE
         modules/ngx_http_vts/README.md
-        modules/ngx_Input_Validation_module/config
-        modules/ngx_Input_Validation_module/ngx_Input_Validation_module.c
-        modules/ngx_Input_Validation_module/readme.txt
+        modules/ngx_input_validation_module/config
+        modules/ngx_input_validation_module/ngx_input_validation_module.c
+        modules/ngx_input_validation_module/readme.txt
         modules/replace-filter-nginx-module/src/ddebug.h
         modules/replace-filter-nginx-module/src/ngx_http_replace_filter_module.c
         modules/replace-filter-nginx-module/src/ngx_http_replace_filter_module.h
