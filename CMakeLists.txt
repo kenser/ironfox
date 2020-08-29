@@ -3,30 +3,10 @@ project(ironfox)
 
 set(CMAKE_CXX_STANDARD 14)
 
-include_directories(.)
-include_directories(cert)
-include_directories(html)
-include_directories(manager)
-include_directories(modules)
-include_directories(modules/Doc)
-include_directories(modules/nginx-eval-module)
-include_directories(modules/nginx-http-footer-filter)
-include_directories(modules/ngx_http_bot_protection_module)
-include_directories(modules/ngx_http_captcha_module)
 include_directories(modules/ngx_http_header_inspect)
-include_directories(modules/ngx_http_vts)
 include_directories(modules/ngx_http_vts/src)
-include_directories(modules/ngx_input_validation_module)
-include_directories(modules/replace-filter-nginx-module)
 include_directories(modules/replace-filter-nginx-module/src)
-include_directories(nginx-1.19.2)
-include_directories(nginx-1.19.2/auto)
-include_directories(nginx-1.19.2/conf)
-include_directories(nginx-1.19.2/contrib)
-include_directories(nginx-1.19.2/html)
-include_directories(nginx-1.19.2/man)
 include_directories(nginx-1.19.2/objs)
-include_directories(nginx-1.19.2/src)
 include_directories(nginx-1.19.2/src/core)
 include_directories(nginx-1.19.2/src/event)
 include_directories(nginx-1.19.2/src/http)
@@ -34,11 +14,8 @@ include_directories(nginx-1.19.2/src/http/modules)
 include_directories(nginx-1.19.2/src/http/modules/perl)
 include_directories(nginx-1.19.2/src/http/v2)
 include_directories(nginx-1.19.2/src/mail)
-include_directories(nginx-1.19.2/src/misc)
-include_directories(nginx-1.19.2/src/os)
 include_directories(nginx-1.19.2/src/os/unix)
 include_directories(nginx-1.19.2/src/stream)
-include_directories(scripts)
 
 add_executable(ironfox
         cert/nginx-selfsigned.crt
@@ -55,7 +32,6 @@ add_executable(ironfox
         manager/innovera.service
         manager/panel.jar
         manager/runservice.sh
-        modules/Doc/IronFox
         modules/nginx-eval-module/Changelog
         modules/nginx-eval-module/config
         modules/nginx-eval-module/LICENCE
@@ -254,135 +230,6 @@ add_executable(ironfox
         nginx-1.19.2/html/50x.html
         nginx-1.19.2/html/index.html
         nginx-1.19.2/man/nginx.8
-        nginx-1.19.2/objs/addon/ngx_http_header_inspect/ngx_http_header_inspect.o
-        nginx-1.19.2/objs/addon/src/ngx_http_bot_protection_module.o
-        nginx-1.19.2/objs/addon/src/ngx_http_replace_filter_module.o
-        nginx-1.19.2/objs/addon/src/ngx_http_replace_parse.o
-        nginx-1.19.2/objs/addon/src/ngx_http_replace_script.o
-        nginx-1.19.2/objs/addon/src/ngx_http_replace_util.o
-        nginx-1.19.2/objs/src/core/nginx.o
-        nginx-1.19.2/objs/src/core/ngx_array.o
-        nginx-1.19.2/objs/src/core/ngx_buf.o
-        nginx-1.19.2/objs/src/core/ngx_conf_file.o
-        nginx-1.19.2/objs/src/core/ngx_connection.o
-        nginx-1.19.2/objs/src/core/ngx_cpuinfo.o
-        nginx-1.19.2/objs/src/core/ngx_crc32.o
-        nginx-1.19.2/objs/src/core/ngx_crypt.o
-        nginx-1.19.2/objs/src/core/ngx_cycle.o
-        nginx-1.19.2/objs/src/core/ngx_file.o
-        nginx-1.19.2/objs/src/core/ngx_hash.o
-        nginx-1.19.2/objs/src/core/ngx_inet.o
-        nginx-1.19.2/objs/src/core/ngx_list.o
-        nginx-1.19.2/objs/src/core/ngx_log.o
-        nginx-1.19.2/objs/src/core/ngx_md5.o
-        nginx-1.19.2/objs/src/core/ngx_module.o
-        nginx-1.19.2/objs/src/core/ngx_murmurhash.o
-        nginx-1.19.2/objs/src/core/ngx_open_file_cache.o
-        nginx-1.19.2/objs/src/core/ngx_output_chain.o
-        nginx-1.19.2/objs/src/core/ngx_palloc.o
-        nginx-1.19.2/objs/src/core/ngx_parse.o
-        nginx-1.19.2/objs/src/core/ngx_parse_time.o
-        nginx-1.19.2/objs/src/core/ngx_proxy_protocol.o
-        nginx-1.19.2/objs/src/core/ngx_queue.o
-        nginx-1.19.2/objs/src/core/ngx_radix_tree.o
-        nginx-1.19.2/objs/src/core/ngx_rbtree.o
-        nginx-1.19.2/objs/src/core/ngx_regex.o
-        nginx-1.19.2/objs/src/core/ngx_resolver.o
-        nginx-1.19.2/objs/src/core/ngx_rwlock.o
-        nginx-1.19.2/objs/src/core/ngx_sha1.o
-        nginx-1.19.2/objs/src/core/ngx_shmtx.o
-        nginx-1.19.2/objs/src/core/ngx_slab.o
-        nginx-1.19.2/objs/src/core/ngx_spinlock.o
-        nginx-1.19.2/objs/src/core/ngx_string.o
-        nginx-1.19.2/objs/src/core/ngx_syslog.o
-        nginx-1.19.2/objs/src/core/ngx_times.o
-        nginx-1.19.2/objs/src/event/modules/ngx_epoll_module.o
-        nginx-1.19.2/objs/src/event/ngx_event.o
-        nginx-1.19.2/objs/src/event/ngx_event_accept.o
-        nginx-1.19.2/objs/src/event/ngx_event_connect.o
-        nginx-1.19.2/objs/src/event/ngx_event_openssl.o
-        nginx-1.19.2/objs/src/event/ngx_event_openssl_stapling.o
-        nginx-1.19.2/objs/src/event/ngx_event_pipe.o
-        nginx-1.19.2/objs/src/event/ngx_event_posted.o
-        nginx-1.19.2/objs/src/event/ngx_event_timer.o
-        nginx-1.19.2/objs/src/event/ngx_event_udp.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_access_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_auth_basic_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_autoindex_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_browser_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_charset_filter_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_chunked_filter_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_empty_gif_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_fastcgi_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_geo_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_gzip_filter_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_headers_filter_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_index_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_limit_conn_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_limit_req_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_log_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_map_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_memcached_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_mirror_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_not_modified_filter_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_proxy_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_range_filter_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_referer_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_rewrite_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_scgi_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_split_clients_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_ssi_filter_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_ssl_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_static_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_sub_filter_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_try_files_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_upstream_hash_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_upstream_ip_hash_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_upstream_keepalive_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_upstream_least_conn_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_upstream_random_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_upstream_zone_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_userid_filter_module.o
-        nginx-1.19.2/objs/src/http/modules/ngx_http_uwsgi_module.o
-        nginx-1.19.2/objs/src/http/ngx_http.o
-        nginx-1.19.2/objs/src/http/ngx_http_copy_filter_module.o
-        nginx-1.19.2/objs/src/http/ngx_http_core_module.o
-        nginx-1.19.2/objs/src/http/ngx_http_file_cache.o
-        nginx-1.19.2/objs/src/http/ngx_http_header_filter_module.o
-        nginx-1.19.2/objs/src/http/ngx_http_parse.o
-        nginx-1.19.2/objs/src/http/ngx_http_postpone_filter_module.o
-        nginx-1.19.2/objs/src/http/ngx_http_request.o
-        nginx-1.19.2/objs/src/http/ngx_http_request_body.o
-        nginx-1.19.2/objs/src/http/ngx_http_script.o
-        nginx-1.19.2/objs/src/http/ngx_http_special_response.o
-        nginx-1.19.2/objs/src/http/ngx_http_upstream.o
-        nginx-1.19.2/objs/src/http/ngx_http_upstream_round_robin.o
-        nginx-1.19.2/objs/src/http/ngx_http_variables.o
-        nginx-1.19.2/objs/src/http/ngx_http_write_filter_module.o
-        nginx-1.19.2/objs/src/os/unix/ngx_alloc.o
-        nginx-1.19.2/objs/src/os/unix/ngx_channel.o
-        nginx-1.19.2/objs/src/os/unix/ngx_daemon.o
-        nginx-1.19.2/objs/src/os/unix/ngx_dlopen.o
-        nginx-1.19.2/objs/src/os/unix/ngx_errno.o
-        nginx-1.19.2/objs/src/os/unix/ngx_files.o
-        nginx-1.19.2/objs/src/os/unix/ngx_linux_init.o
-        nginx-1.19.2/objs/src/os/unix/ngx_linux_sendfile_chain.o
-        nginx-1.19.2/objs/src/os/unix/ngx_posix_init.o
-        nginx-1.19.2/objs/src/os/unix/ngx_process.o
-        nginx-1.19.2/objs/src/os/unix/ngx_process_cycle.o
-        nginx-1.19.2/objs/src/os/unix/ngx_readv_chain.o
-        nginx-1.19.2/objs/src/os/unix/ngx_recv.o
-        nginx-1.19.2/objs/src/os/unix/ngx_send.o
-        nginx-1.19.2/objs/src/os/unix/ngx_setaffinity.o
-        nginx-1.19.2/objs/src/os/unix/ngx_setproctitle.o
-        nginx-1.19.2/objs/src/os/unix/ngx_shmem.o
-        nginx-1.19.2/objs/src/os/unix/ngx_socket.o
-        nginx-1.19.2/objs/src/os/unix/ngx_time.o
-        nginx-1.19.2/objs/src/os/unix/ngx_udp_recv.o
-        nginx-1.19.2/objs/src/os/unix/ngx_udp_send.o
-        nginx-1.19.2/objs/src/os/unix/ngx_udp_sendmsg_chain.o
-        nginx-1.19.2/objs/src/os/unix/ngx_user.o
-        nginx-1.19.2/objs/src/os/unix/ngx_writev_chain.o
         nginx-1.19.2/objs/autoconf.err
         nginx-1.19.2/objs/Makefile
         nginx-1.19.2/objs/nginx
@@ -391,15 +238,11 @@ add_executable(ironfox
         nginx-1.19.2/objs/ngx_auto_headers.h
         nginx-1.19.2/objs/ngx_http_bot_protection_module.so
         nginx-1.19.2/objs/ngx_http_bot_protection_module_modules.c
-        nginx-1.19.2/objs/ngx_http_bot_protection_module_modules.o
         nginx-1.19.2/objs/ngx_http_header_inspect_module.so
         nginx-1.19.2/objs/ngx_http_header_inspect_module_modules.c
-        nginx-1.19.2/objs/ngx_http_header_inspect_module_modules.o
         nginx-1.19.2/objs/ngx_http_replace_filter_module.so
         nginx-1.19.2/objs/ngx_http_replace_filter_module_modules.c
-        nginx-1.19.2/objs/ngx_http_replace_filter_module_modules.o
         nginx-1.19.2/objs/ngx_modules.c
-        nginx-1.19.2/objs/ngx_modules.o
         nginx-1.19.2/src/core/nginx.c
         nginx-1.19.2/src/core/nginx.h
         nginx-1.19.2/src/core/ngx_array.c
@@ -407,8 +250,6 @@ add_executable(ironfox
         nginx-1.19.2/src/core/ngx_buf.c
         nginx-1.19.2/src/core/ngx_buf.h
         nginx-1.19.2/src/core/ngx_conf_file.c
-        nginx-1.19.2/src/core/ngx_conf_file.c.orig
-        nginx-1.19.2/src/core/ngx_conf_file.c.rej
         nginx-1.19.2/src/core/ngx_conf_file.h
         nginx-1.19.2/src/core/ngx_config.h
         nginx-1.19.2/src/core/ngx_connection.c
@@ -725,6 +566,6 @@ add_executable(ironfox
         scripts/setCookieRedefined.html
         scripts/tmp.html
         scripts/tmp.js
+        CMakeLists.txt
         install.sh
-        nginx-1.19.2.tar.gz
         nginx.patch)
