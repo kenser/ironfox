@@ -1,4 +1,5 @@
 #!/bin/bash
+#export CFLAGS="-Wno-error=format-truncation"
 clear
 echo "
  _____                 ______
@@ -8,18 +9,21 @@ echo "
   _| |_| | | (_) | | | | | | (_) >  <
  |_____|_|  \___/|_| |_|_|  \___/_/\_\
 
-
  By: Innovera Technology
- CodeName: The Desert Fox (0.0.5)
-"
+     https://innovera.ir
+ CodeName:
+     The Desert Fox (0.0.5)
+ "
 
 #define variables
 SERVER_IP="0.0.0.0"
 IRON_FOX_ROOT=$PWD
 NGINX_PATH=$IRON_FOX_ROOT/nginx-1.19.2
 MODULES_PATH=$IRON_FOX_ROOT/modules
+SETUP_DEPENDENCY_SREGEX_PATH=$IRON_FOX_ROOT/dependency/sregex
 SETUP_PATH=/home/ironfox/iron
 BIN_PATH=/home/ironfox/iron/sbin
+
 
 MODE_DEBUG='--with-debug'
 HAVE_DEBUG="no"
@@ -93,7 +97,21 @@ sudo apt install libssl-dev
 sudo apt install zlib1g-dev
 sudo apt install openjdk-8-jdk
 
-#todo install postgresql, db and config username
+echo "installing PostgreSql..."
+sudo apt update
+sudo apt -y install vim bash-completion wget
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+echo "deb http://apt.postgresql.org/pub/repos/apt/ `lsb_release -cs`-pgdg main" |sudo tee  /etc/apt/sources.list.d/pgdg.list
+sudo apt update
+sudo apt -y install postgresql-12 postgresql-client-12
+#todo add postgresql account and db with all-in-one sql file
+
+cd $SETUP_DEPENDENCY_SREGEX_PATH
+make
+sudo make install
+cd $IRON_FOX_ROOT
+
+
 
 echo "apply iptables settings..."
 sudo iptables -P INPUT ACCEPT
@@ -148,11 +166,11 @@ cd $NGINX_PATH
   --with-http_ssl_module \
   --with-compat \
   --add-dynamic-module=${MODULES_PATH}/ngx_http_bot_protection_module \
-  --add-dynamic-module=${MODULES_PATH}/ngx_http_header_inspect \
   --add-dynamic-module=${MODULES_PATH}/replace-filter-nginx-module
+  #--add-dynamic-module=${MODULES_PATH}/ngx_http_header_inspect \
 
-make CFLAGS="-Wno-error=format-truncation"
-make CFLAGS="-Wno-error=format-truncation" install
+make
+make install
 
 cd $IRON_FOX_ROOT
 echo "copy files..."
@@ -172,6 +190,4 @@ sudo systemctl daemon-reload
 sudo systemctl enable innovera.service
 sudo systemctl start innovera
 
-echo "cleanup..."
-sudo rm -R nginx-1.19.2
 echo "setup done."

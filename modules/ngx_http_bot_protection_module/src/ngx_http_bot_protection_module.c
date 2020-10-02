@@ -2,64 +2,27 @@
   Innovera Technology; https://innovera.ir
   IronFox project, Version 0.0.4
 
+  Copyright (C) 2016-2020 Khalegh Salehi (khaleghsalehi@gmail.com).
   Copyright (C) 2011-2018 Eldar Zaitov (eldar@kyprizel.net).
-  Copyright (C) 2019-2020 Khalegh Salehi (khaleghsalehi@gmail.com).
 
   All rights reserved.
   This module is licenced under the terms of BSD license.
 
 */
 
+
+//todo obfuscate all string like token= kooki= javascripts etc ..
+
 #include <ngx_config.h>
 #include <ngx_core.h>
 #include <ngx_http.h>
 #include <ngx_md5.h>
+#include "ngx_http_bot_protection_module.h"
 
-#define MODULE_VERSION  "0.0.5 The Desert Fox"
-
-#define PROBE_COOKIE_ENCRYPTION
-
-#ifdef PROBE_COOKIE_ENCRYPTION
-
-#include <openssl/rand.h>
-#include <openssl/evp.h>
-
-#endif
-
-#define BOT_PROTECTION_OFF     0
-#define BOT_PROTECTION_ON      1
-#define BOT_PROTECTION_VARIABLE     2
-
-// Wednesday, January 1, 2025 12:00:00 AM
-#define NGX_HTTP_BOT_PROTECTION_TTL_MAX_EXPIRES  1735689600
-
-#define ANOMALY_DETECTION_OFF     0
-#define ANOMALY_DETECTION_ON     1
-
-
-#define DEFAULT_COOKIE_NAME "kooki"
-#define TOKEN_NAME  "token="
-#define TOKEN_NAME_LENGTH  6
-#define KEY_NAME  "key="
-#define KEY_NAME_LENGTH  4
-
-#ifndef MD5_DIGEST_LENGTH
-#define MD5_DIGEST_LENGTH 16
-#endif
-#define RFC1945_ATTEMPTS    4
-
-//todo review the challenges and model ( also obfuscation)
-#define JS_MEDIUM_BODY "<html><head><title>IronFox</title></head><body><p style='text-align: center;'><span style='font-family:tahoma,geneva,sans-serif;'><span style='color: rgb(139, 69, 19);'><span style='font-size: 72px;'><span style='font-weight: bold;'>IronFox</span></span></span></span><br/><br/><span style='font-size:16px;'><font face='tahoma, geneva, sans-serif'><i>checking your request, This process is automatic and your browser redicret to your request content shortely.<br /><br/><span style='color:#000000;'>Please allow up for&nbsp;secondes...</span></i></font></span></p><p style='text-align: center;'>&nbsp;</p><hr/><p>&nbsp;</p><h2 style='text-align: center;'><span style='font-family:tahoma,geneva,sans-serif;'><span style='color:#2F4F4F;'><span style='font-size:14px;'>Powered by IronFox&nbsp;</span></span></span><br />&nbsp;</h2><script type='text/javascript' src='/iron.js'></script><script>var s='$bot_protection_enc_key$bot_protection_enc_salt$bot_protection_enc_iv$ironfox_cookie_enc_set$bot_protection_enc_salt';document.cookie ='IronFox=' + UTCString(s) + '; expires=' + TTL().toUTCString() + '; path=/';location.href = '$bot_protection_nexturl';</script></body></html>";
-#define JS_MEDIUM_LEN 1174
-
-#define JS_HARD_BODY   "<html><head><title>IronFox</title><script type='text/javascript' src='/sweet-alert.min.js'></script><link href='/sweet-alert.css' rel='stylesheet' type='text/css' /></head><body><p style='text-align: center;'><span style='font-family:tahoma,geneva,sans-serif;'><span style='color: rgb(139, 69, 19);'><span style='font-size: 72px;'><span style='font-weight: bold;'>IronFox</span></span></span></span><br/><br /><span style='font-size:16px;'><font face='tahoma, geneva, sans-serif'><i>checking your request, This process is automatic and your browser redicret to your request content shortely.<br/><br /><span style='color:#000000;'>Please allow up for&nbsp;secondes...</span></i></font></span></p><p style='text-align: center;'>&nbsp;</p><hr/><p>&nbsp;</p><h2 style='text-align: center;'><span style='font-family:tahoma,geneva,sans-serif;'><span style='color:#2F4F4F;'><span style='font-size:14px;'>Powered by IronFox&nbsp;</span></span></span><br/>&nbsp;</h2><script type='text/javascript' src='/iron.js'></script><script>var s='$bot_protection_enc_key$bot_protection_enc_salt$bot_protection_enc_iv$bot_protection_enc_set$bot_protection_enc_salt';sweetAlert({'title':'SUCESS!','type':'success','confirmButtonText':'Continue'},function(){var c={'laWCc':function(d,e){return d+e;},'kChpw':function(f,g){return f+g;},'OdryN':'IronFox=','iDxfA':function(h,i){return h(i);},'mgymq':';\\x20expires=','AEZta':function(j){return j();},'eGyhq':';\\x20path=/','AkAUa':'$bot_protection_nexturl'};document['cookie']=c['laWCc'](c['laWCc'](c['kChpw'](c['kChpw'](c['OdryN'],c['iDxfA'](UTCString,s)),c['mgymq']),c['AEZta'](TTL)['toUTCString']()),c['eGyhq']);location['href']=c['AkAUa'];});</script></body></html>";
-#define JS_HARD_LEN 1694
-
-#define JS_ENGIE_BODY  "<html><head><title>IronFox</title><script type='text/javascript' src='/sweet-alert.min.js'></script><link href='/sweet-alert.css' rel='stylesheet' type='text/css'/></head><body style='background-color:#ffffff;'><script type='text/javascript' src='/iron.js'></script><script>rasBigIntParser('$rnd0$bot_protection_enc_key$bot_protection_enc_salt$bot_protection_enc_iv$bot_protection_enc_set$bot_protection_enc_salt$rnd1','$bot_protection_nexturl');</script></body></html>";
-#define JS_ENGIE_LEN 469
 
 unsigned long count_success_req;
 unsigned long count_failed_req;
+
 
 typedef struct {
     ngx_uint_t enable;
@@ -136,9 +99,7 @@ static ngx_conf_enum_t ngx_http_bot_protection_anomaly_detection_state[] = {
 };
 
 
-static in_addr_t get_remote_ip(ngx_http_request_t *req);
 
-static ngx_str_t get_user_agent(ngx_http_request_t *req);
 
 static ngx_int_t ngx_http_send_refresh(ngx_http_request_t *r, ngx_http_bot_protection_conf_t *conf);
 
@@ -424,20 +385,6 @@ static ngx_command_t ngx_http_bot_protection_commands[] = {
 };
 
 
-/**
- *  get hex and return oct
- */
-static unsigned char hexdigit2int(unsigned char xd) {
-    if (xd <= '9') return xd - '0';
-    xd = tolower(xd);
-    if (xd == 'a') return 10;
-    if (xd == 'b') return 11;
-    if (xd == 'c') return 12;
-    if (xd == 'd') return 13;
-    if (xd == 'e') return 14;
-    if (xd == 'f') return 15;
-    return 0;
-}
 
 
 static ngx_http_module_t ngx_http_bot_protection_module_ctx = {
@@ -1381,68 +1328,163 @@ ngx_http_bot_protection_nexturl_variable(ngx_http_request_t *r,
 }
 
 
-static u_char *
-ngx_cookie_digest_hex(u_char *dest, const u_char *buf, int buf_len) {
-    ngx_md5_t md5;
-    u_char md5_buf[MD5_DIGEST_LENGTH];
 
-    ngx_md5_init(&md5);
-    ngx_md5_update(&md5, buf, buf_len);
-    ngx_md5_final(md5_buf, &md5);
-
-    return ngx_hex_dump(dest, md5_buf, sizeof(md5_buf));
+struct attack *find(ngx_http_request_t *r, char key[]) {
+    struct attack *current = head;
+    ngx_log_debug(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                  "bot_protection hashmap looking for %s",
+                  key);
+    if (head == NULL) {
+        ngx_log_debug(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                      "bot_protection hashmap return head==NULL");
+        return NULL;
+    }
+    while (ngx_strcmp(current->token, key) != 0) {
+        if (current->next == NULL) {
+            ngx_log_debug(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                          "bot_protection hashmap return NULL");
+            return NULL;
+        } else {
+            current = current->next;
+        }
+    }
+    return current;
 }
 
-/**
- *  this method get params and calculate hash
- */
-static ngx_str_t
-ngx_http_get_ironfox_cid(ngx_http_request_t *req, ngx_str_t *KEY) {
-    u_char *tmpcrc_str;
-//    ngx_md5_t tmpmd5;
-//    u_char tmphash[16] = {'\0'};
+void attack_verbose(ngx_http_request_t *r) {
+    struct attack *ptr = head;
+    int i = 0;
+    while (ptr != NULL) {
+        ngx_log_debug(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                      "bot_protection suspected verbose: [%d] client [%s]  request forgery [%d]",
+                      ++i, head->token, head->count);
+        ptr = ptr->next;
+    }
+}
 
-    ngx_str_t tmpua;
-    in_addr_t tmpip;
-    u_char *finalhash;
+int get_suspected_len() {
+    int length = 0;
+    struct attack *current;
 
-    tmpip = get_remote_ip(req);
-    tmpua = get_user_agent(req);
+    for (current = head; current != NULL; current = current->next) {
+        length++;
+    }
+    return length;
+}
 
-    tmpcrc_str = ngx_pcalloc(req->pool, tmpua.len + 19);//alloc n
-    finalhash = ngx_pcalloc(req->pool, tmpua.len + 19);//alloc n
-    ngx_sprintf(tmpcrc_str, "%ul%s%s", tmpip, tmpua.data, KEY);
-    ngx_log_debug1(NGX_LOG_DEBUG_HTTP,
-                   req->connection->log,
-                   0,
-                   "bot_protection tmpcrc_str md5 raw value %s",
-                   tmpcrc_str);
-    ngx_cookie_digest_hex(finalhash, tmpcrc_str, ngx_strlen(tmpcrc_str));
+int  *pop_attack(ngx_http_request_t *r, char *key) {
+    struct attack *current = head;
+    struct attack *previous = NULL;
+    if (head == NULL) {
+        return NULL;
+    }
 
-    ngx_pfree(req->pool, tmpcrc_str);//free n
+    while (ngx_strcmp(current->token, key) != 0) {
+        if (current->next == NULL) {
+            return NULL;
+        } else {
+            previous = current;
+            current = current->next;
+        }
+    }
+    if (current == head) {
+        head = head->next;
+    } else {
+        previous->next = current->next;
+    }
+    ngx_log_debug(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                  "bot_protection  token %s revoked from suspected list successfully.", key);
+    return (int *) 1;
+}
 
-    ngx_log_debug1(NGX_LOG_DEBUG_HTTP,
-                   req->connection->log,
-                   0,
-                   "bot_protection [%s] tmpcrc hashed md5 value",
-                   finalhash);
-    ngx_str_t res;
-    res.data = finalhash;
-    ngx_pfree(req->pool, finalhash);//free n
-    return res;
+int push_attack(ngx_http_request_t *r, char key[], int count) {
+    struct attack *new_attack = (struct attack *) malloc(sizeof(struct attack));
+    if (new_attack == NULL) {
+        ngx_log_debug(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                      "bot_protection  error memory allocation.");
+        return 1;
+    }
+    strncpy(new_attack->token, key, 512);
+    new_attack->count = count;
+    new_attack->next = head;
+    head = new_attack;
+    return 0;
+}
+
+int decrypt_token(ngx_http_request_t *r, unsigned char *ciphertext, int ciphertext_len, unsigned char *key,
+                  unsigned char *iv, unsigned char *plaintext) {
+    EVP_CIPHER_CTX *ctx;
+    int len;
+
+    int plaintext_len;
+
+    ngx_log_debug(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                  "bot_protection decrypt_token params ciphertext len->(%d), aes.key[%s]-> len(%d), aes.iv[%s]-> len(%d)",
+                  ciphertext_len, key, strlen((const char *) key), iv, strlen((const char *) iv));
+
+    /* Create and initialise the context */
+    if (!(ctx = EVP_CIPHER_CTX_new())) {
+        ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection error init evp context");
+    }
+
+    /*
+     * Initialise the decryption operation. IMPORTANT - ensure you use a key
+     * and IV size appropriate for your cipher
+     * In this example we are using 256 bit AES (i.e. a 256 bit key). The
+     * IV size for *most* modes is the same as the block size. For AES this
+     * is 128 bits
+     */
+    if (1 != EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv)) {
+        ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                       "bot_protection error init cvp and context decryption");
+    }
+
+    /*
+     * Provide the message to be decrypted, and obtain the plaintext output.
+     * EVP_DecryptUpdate can be called multiple times if necessary.
+     */
+    if (1 != EVP_DecryptUpdate(ctx, plaintext, &len, ciphertext, ciphertext_len)) {
+        ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection error init evp decrypt update");
+    }
+    plaintext_len = len;
+
+    /*
+     * Finalise the decryption. Further plaintext bytes may be written at
+     * this stage.
+     */
+    if (1 != EVP_DecryptFinal_ex(ctx, plaintext + len, &len)) {
+        ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection error init evp decrypt finalize");
+    }
+    plaintext_len += len;
+
+    /* Clean up */
+    EVP_CIPHER_CTX_free(ctx);
+
+    return plaintext_len;
 }
 
 
 static ngx_http_bot_protection_ctx_t *
 ngx_http_bot_protection_get_uid(ngx_http_request_t *r, ngx_http_bot_protection_conf_t *conf) {
     ngx_int_t n;
+#define TOKEN_SIZE 253
 
-    char token[65];
+    char token[TOKEN_SIZE + 1];
+    memset(token, '\0', TOKEN_SIZE + 1);
+
     char key[33];
+    memset(key, '\0', 32 + 1);
 
-    memset(token, 0, 64 + 1);
-    memset(key, 0, 32 + 1);
-    ngx_log_debug(NGX_LOG_INFO, r->connection->log, 0, "bot_protection version %s", MODULE_VERSION);
+    unsigned char decrypted_str[1024];
+    int decrypted_str_len;
+
+    unsigned char cipher_str[97];
+    char aes_key_str[33];
+    char aes_iv_str[17];
+    char time_stamp[14];
+    int i, j;
+
+
     ngx_table_elt_t **cookies;
     ngx_http_bot_protection_conf_t *ucf = conf;
     ngx_http_bot_protection_ctx_t *ctx;
@@ -1458,6 +1500,8 @@ ngx_http_bot_protection_get_uid(ngx_http_request_t *r, ngx_http_bot_protection_c
     ngx_http_variable_value_t *vv = NULL;
     u_char complex_hash[MD5_DIGEST_LENGTH];
     u_char complex_hash_hex[MD5_DIGEST_LENGTH * 2];
+
+    ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection version %s", MODULE_VERSION);
 
     ctx = ngx_http_get_module_ctx(r, ngx_http_bot_protection_module);
     if (ctx == NULL) {
@@ -1590,7 +1634,6 @@ ngx_http_bot_protection_get_uid(ngx_http_request_t *r, ngx_http_bot_protection_c
     cookies = r->headers_in.cookies.elts;
     if (ngx_strcmp(&cookies[n]->value, DEFAULT_COOKIE_NAME)) { // yup, ironfox cookie found
 
-
         ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                        "bot_protection client sent cookies \"%V\"",
                        &cookies[n]->value);
@@ -1606,7 +1649,7 @@ ngx_http_bot_protection_get_uid(ngx_http_request_t *r, ngx_http_bot_protection_c
 
     }
 
-// end of IronFox checking
+
 #if (NGX_DEBUG)
 
 
@@ -1640,74 +1683,223 @@ ngx_http_bot_protection_get_uid(ngx_http_request_t *r, ngx_http_bot_protection_c
     ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection complex_hash_hex [%s]",
                    complex_hash_hex);
     if (ngx_memcmp(ctx->uid_got, complex_hash_hex, MD5_DIGEST_LENGTH * 2) == 0) {
-        // ironfox cookie hash matched, start find and compare  key and token (by browser fingerprint)
+        // ironfox cookie hash matched, start fingerprinting
         if (conf->anomaly_detection == ANOMALY_DETECTION_OFF) {
             ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection ignore anomaly detection...");
-            ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection ctx->ok = 1 , cookie matched");
             ctx->ok = 1;
             return ctx;
         }
         ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection start anomaly detection...");
-        ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection ctx->ok = 1 , cookie matched");
 
-        int cookie_len = 512;//todo change it
-        char cookie_holder[cookie_len];
-        memset(cookie_holder, 0, cookie_len + 1);
-        ngx_snprintf(cookie_holder, cookie_len, "%V", &cookies[n]->value);
-        cookie_holder[cookie_len + 1] = '\0';
-        ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection cookie holder %s", cookie_holder);
+        int cookie_len = 1024;//todo 512 engouh
+        char cookie_container[cookie_len];
+        memset(cookie_container, 0, cookie_len);
+        ngx_snprintf((unsigned char *)cookie_container, cookie_len, "%V", &cookies[n]->value);
+        cookie_container[cookie_len + 1] = '\0';
+        ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection cookie container value -> %s",
+                       cookie_container);
 
-        if (strstr(cookie_holder, TOKEN_NAME) != NULL && strstr(cookie_holder, KEY_NAME) != NULL) {
-            ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection token and key exists in cookie");
+        if (strstr(cookie_container, TOKEN_NAME) != NULL && strstr(cookie_container, KEY_NAME) != NULL) {
+            ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                           "bot_protection token and key exists in cookie container");
             // extract encrypted token
-            char *token_ptr = strstr(cookie_holder, TOKEN_NAME);
-            int token_index = token_ptr - cookie_holder;
-            int j = 0;
-            for (int i = token_index + TOKEN_NAME_LENGTH; i < token_index + TOKEN_NAME_LENGTH + 64; ++i) {
-                sprintf(&token[j], "%c", cookie_holder[i]);
+            char *token_ptr = strstr(cookie_container, TOKEN_NAME);
+            int token_index = token_ptr - cookie_container;
+            j = 0;
+            for (i = token_index + TOKEN_NAME_LENGTH; i < token_index + TOKEN_NAME_LENGTH + TOKEN_SIZE; ++i) {
+                sprintf(&token[j], "%c", cookie_container[i]);
                 j++;
             }
+
             token[j] = '\0';
-            ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection token.value %s", token);
+            ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection token.value %s",
+                           token);
 
             // extract key
-            char *key_ptr = strstr(cookie_holder, KEY_NAME);
-            int key_index = key_ptr - cookie_holder;
+            char *key_ptr = strstr(cookie_container, KEY_NAME);
+            int key_index = key_ptr - cookie_container;
             int l = 0;
-            for (int i = key_index + KEY_NAME_LENGTH; i < key_index + KEY_NAME_LENGTH + 32; ++i) {
-                sprintf(&key[l], "%c", cookie_holder[i]);
+            for (i = key_index + KEY_NAME_LENGTH; i < key_index + KEY_NAME_LENGTH + 32; ++i) {
+                sprintf(&key[l], "%c", cookie_container[i]);
                 l++;
             }
             key[l] = '\0';
-            ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection key.value %s", key);
+            ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection (key in cookie) key.value %s",
+                           key);
 
-            // decrypt/de-obfuscation's token and extract main value
+            // de-obfuscation's and decrypt token and extract main value
+
+
+
             if (strlen(token) > 0) {
-                char token_reverse[65];
-                memset(token_reverse, 0, 65);
-                for (int k = 0; k < 64; k++) {
-                    token_reverse[k] = token[64 - 1 - k];
-                }
-                token_reverse[65] = '\0';
 
-                // convert to asci
-                const char *src = token_reverse;
-                char token_final_value[] = "", *dst = token_final_value;
-                while (*src != '\0') {
-                    const unsigned char high = hexdigit2int(*src++);
-                    const unsigned char low = hexdigit2int(*src++);
-                    *dst++ = (high << 4) | low;
+                memset(cipher_str, 0, 97);
+                memset(aes_key_str, 0, 33);
+                memset(aes_iv_str, 0, 17);
+                memset(time_stamp, 0, 14);
+                // AES key
+                j = 0;
+                for (i = 0; i < 32; ++i) {
+                    sprintf(&aes_key_str[j], "%c", token[i]);
+                    j++;
                 }
-                *dst = '\0';
-                ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection extract token got '%s'",
-                               token_final_value);
-                if (ngx_strcmp(key, token_final_value) == 0) {
+                aes_key_str[32] = '\0';
+                // AES iv
+                j = 0;
+                for (int k = 32; k < 48; ++k) {
+                    sprintf(&aes_iv_str[j], "%c", token[k]);
+                    j++;
+                }
+                aes_iv_str[16] = '\0';
+
+
+                unsigned char ukey[33];
+                unsigned char uiv[17];
+                memset(ukey, 0, 32);
+                memset(uiv, 0, 16);
+
+
+                for (i = 0; i < 32; i++) {
+                    sscanf(aes_key_str + i, "%c", &ukey[i]);
+                }
+                ukey[32] = '\0';
+                for (i = 0; i < 16; i++) {
+                    sscanf(aes_iv_str + i, "%c", &uiv[i]);
+                }
+                uiv[16] = '\0';
+
+                ngx_log_debug(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                              "bot_protection key [%s] ukey[%s]-> len(%d)",
+                              aes_key_str, ukey, strlen((const char *) ukey));
+
+                ngx_log_debug(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                              "bot_protection iv [%s] uiv[%s]->len(%d)",
+                              aes_iv_str, uiv, strlen((const char *) uiv));
+
+                char payload[114], *pos = payload;
+                //memset(payload,0,strlen(payload));
+                j = 0;
+                for (int k = 48; k < 144; ++k) {
+                    sprintf(&payload[j], "%c", token[k]);
+                    j++;
+                }
+                //payload[114] = '\0';
+
+
+                j = 0;
+                for (size_t c = 0; c < sizeof cipher_str / sizeof *cipher_str; c++) {
+                    sscanf(pos, "%2hhX", &cipher_str[c]);
+                    pos += 2;
+                }
+                cipher_str[48] = '\0';
+                ngx_log_debug(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                              "bot_protection cipher_str  payload len %d",
+                              j);
+
+
+                // extract timestamp
+                j = 0;
+                memset(time_stamp, 0, 14);
+                for (int k = 144; k < 154; ++k) {
+                    sprintf(&time_stamp[j], "%c", token[k]);
+                    j++;
+                }
+
+                //get request ts
+                time_t rawtime;
+                rawtime = strtol(time_stamp, NULL, 0);
+                //ctime(&rawtime);
+                ngx_log_debug(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                              "bot_protection extract request raw timestamp =>  %l", rawtime);
+                struct tm *req_ts = localtime(&rawtime);
+                ngx_log_debug(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                              "bot_protection extract request timestamp =>  %02d:%02d:%02d", req_ts->tm_hour,
+                              req_ts->tm_min, req_ts->tm_sec);
+                int req_ts_sec = req_ts->tm_sec;
+                int req_ts_min = (req_ts->tm_min) * 60;
+                int req_ts_hr = (req_ts->tm_hour) * 3600;
+
+
+                int total_req_sec = req_ts_hr + req_ts_min + req_ts_sec;
+
+                //get server ts
+                struct timeval tv;
+                struct tm *server_ts;
+                gettimeofday(&tv, NULL);
+
+                server_ts = localtime((const time_t *) &tv);
+                ngx_log_debug(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                              "bot_protection get server timestamp =>  %02d:%02d:%02d", server_ts->tm_hour,
+                              server_ts->tm_min, server_ts->tm_sec);
+                int total_server_sec = (server_ts->tm_hour) * (3600) + (server_ts->tm_min) * (60) + server_ts->tm_sec;
+
+                // first check the token ttl for replay attack (CSRF) then decrypt token, reduce decryption overhead ;-)
+                int ts_diff = total_server_sec - total_req_sec;
+                //todo TOKEN_TTL_THRESHOLD_SECOND & CSRF_BLOCKING_THRESHOLD configurable
+                if (ts_diff > TOKEN_TTL_THRESHOLD_SECOND || ts_diff < 0) {
+                    ngx_log_debug(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                                  "bot_protection Ooooppsss! token ttl (%d) threshold or negative, maybe CSRF attack!",
+                                  ts_diff);
+
+                    if (find(r, key) == NULL) {
+                        ngx_log_debug(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                                      "bot_protection add token to canary, check for false positive!");
+                        push_attack(r, key, 1);
+                    } else {
+                        struct attack *node = find(r, key);
+                        if (node->count > CSRF_BLOCKING_THRESHOLD) {
+                            ngx_log_debug(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                                          "bot_protection canary triggered. reply token %s for %d times, reject request",
+                                          node->token,
+                                          node->count++);
+                            //todo add this fingerprint to black list  or forward to captcha!
+                            return NULL;
+                        }
+                        ngx_log_debug(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                                      "bot_protection CSRF triggered token %s for %d times", node->token,
+                                      node->count++);
+                        struct attack *temp = find(r, key);
+                        pop_attack(r, key);
+                        push_attack(r, temp->token, temp->count++);
+
+                    }
+                } else {
+                    ngx_log_debug(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection token ttl (%d) valid",
+                                  ts_diff);
+                    pop_attack(r, key);
+                }
+                ngx_log_debug(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                              "bot_protection total suspected clients => %d ",
+                              get_suspected_len());
+                attack_verbose(r);
+
+                ngx_log_debug(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
+                              "bot_protection before decryption => key:[%s] iv:[%s] timestamp:[%s] ",
+                              ukey, uiv, time_stamp);
+
+                decrypted_str_len = decrypt_token(r, cipher_str,
+                                                  strlen((const char *) cipher_str),
+                                                  (unsigned char *) ukey,
+                                                  (unsigned char *) uiv,
+                                                  decrypted_str);
+
+                decrypted_str[decrypted_str_len] = '\0';
+                ngx_log_debug(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection  AES decrypted result: %s",
+                              decrypted_str);
+
+
+
+                /////////////////////////////////////////////////////////////////////
+
+                if (ngx_strcmp(key, decrypted_str) == 0) {
                     ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection token and key matched ");
+
+
                     ctx->ok = 1;
                     return ctx;
                 } else {
                     ngx_log_debug2(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
-                                   "bot_protection not matched! token.value %s and key.value %s", token, key);
+                                   "bot_protection not matched! token.value %s and key.value %s", decrypted_str, key);
                 }
 
             } else {
@@ -1718,7 +1910,7 @@ ngx_http_bot_protection_get_uid(ngx_http_request_t *r, ngx_http_bot_protection_c
             ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection token or key not found");
         }
 
-        //  ctx->ok = 1;
+        // ctx->ok = 1;
     } else {
         ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection ctx->ok != 1 ");
     }
@@ -1901,21 +2093,7 @@ ngx_http_bot_protection_add_variables(ngx_conf_t *cf) {
 }
 
 
-static in_addr_t
-get_remote_ip(ngx_http_request_t *req) {
-    in_addr_t inaddr;
-    struct sockaddr_in *sin;
 
-    sin = (struct sockaddr_in *) req->connection->sockaddr;
-    inaddr = ntohl(sin->sin_addr.s_addr);
-
-    return inaddr;
-}
-
-static ngx_str_t
-get_user_agent(ngx_http_request_t *req) {
-    return req->headers_in.user_agent->value;
-}
 
 
 static void *
@@ -2652,7 +2830,7 @@ ngx_ishex(u_char *src, size_t len) {
 
 u_char *
 ngx_hextobin(u_char *dst, u_char *src, size_t len) {
-#define hextobin(c) ((c) >= 'A' && (c) <= 'F' ? c - 'A' + 10 : (c) >= 'a' && (c) <= 'f' ? c - 'a' + 10 : c - '0')
+//#define hextobin(c) ((c) >= 'A' && (c) <= 'F' ? c - 'A' + 10 : (c) >= 'a' && (c) <= 'f' ? c - 'a' + 10 : c - '0')
     size_t i;
 
     if (len % 2) return NULL;

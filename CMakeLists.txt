@@ -30,7 +30,6 @@ add_executable(ironfox
         html/sweet-alert.min.js
         manager/application.properties
         manager/innovera.service
-        manager/panel.jar
         manager/runservice.sh
         modules/nginx-eval-module/Changelog
         modules/nginx-eval-module/config
@@ -568,4 +567,4 @@ add_executable(ironfox
         scripts/tmp.js
         CMakeLists.txt
         install.sh
-        nginx.patch)
+        nginx.patch modules/ngx_http_bot_protection_module/src/ngx_http_bot_protection_module.h)
