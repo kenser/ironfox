@@ -1260,32 +1260,6 @@ objs/addon/src/ngx_http_bot_protection_module.o:	$(ADDON_DEPS) \
 		/home/khalegh/ironfox/modules/ngx_http_bot_protection_module/src/ngx_http_bot_protection_module.c
 
 
-modules:	objs/ngx_http_header_inspect_module.so
-
-objs/ngx_http_header_inspect_module.so:	objs/addon/ngx_http_header_inspect/ngx_http_header_inspect.o \
-	objs/ngx_http_header_inspect_module_modules.o
-
-	$(LINK) -o objs/ngx_http_header_inspect_module.so \
-	objs/addon/ngx_http_header_inspect/ngx_http_header_inspect.o \
-	objs/ngx_http_header_inspect_module_modules.o \
-	-Wl,-rpath,/usr/local/lib \
-	-shared
-
-
-objs/ngx_http_header_inspect_module_modules.o:	$(CORE_DEPS) \
-	objs/ngx_http_header_inspect_module_modules.c
-	$(CC) -c -fPIC $(CFLAGS) $(ALL_INCS) \
-		-o objs/ngx_http_header_inspect_module_modules.o \
-		objs/ngx_http_header_inspect_module_modules.c
-
-
-objs/addon/ngx_http_header_inspect/ngx_http_header_inspect.o:	$(ADDON_DEPS) \
-	/home/khalegh/ironfox/modules/ngx_http_header_inspect/ngx_http_header_inspect.c
-	$(CC) -c -fPIC $(CFLAGS) $(ALL_INCS) \
-		-o objs/addon/ngx_http_header_inspect/ngx_http_header_inspect.o \
-		/home/khalegh/ironfox/modules/ngx_http_header_inspect/ngx_http_header_inspect.c
-
-
 modules:	objs/ngx_http_replace_filter_module.so
 
 objs/ngx_http_replace_filter_module.so:	objs/addon/src/ngx_http_replace_filter_module.o \
@@ -1411,11 +1385,6 @@ install:	build
 		|| mv '$(DESTDIR)/home/ironfox/iron/modules/ngx_http_bot_protection_module.so' \
 			'$(DESTDIR)/home/ironfox/iron/modules/ngx_http_bot_protection_module.so.old'
 	cp objs/ngx_http_bot_protection_module.so '$(DESTDIR)/home/ironfox/iron/modules/ngx_http_bot_protection_module.so'
-
-	test ! -f '$(DESTDIR)/home/ironfox/iron/modules/ngx_http_header_inspect_module.so' \
-		|| mv '$(DESTDIR)/home/ironfox/iron/modules/ngx_http_header_inspect_module.so' \
-			'$(DESTDIR)/home/ironfox/iron/modules/ngx_http_header_inspect_module.so.old'
-	cp objs/ngx_http_header_inspect_module.so '$(DESTDIR)/home/ironfox/iron/modules/ngx_http_header_inspect_module.so'
 
 	test ! -f '$(DESTDIR)/home/ironfox/iron/modules/ngx_http_replace_filter_module.so' \
 		|| mv '$(DESTDIR)/home/ironfox/iron/modules/ngx_http_replace_filter_module.so' \

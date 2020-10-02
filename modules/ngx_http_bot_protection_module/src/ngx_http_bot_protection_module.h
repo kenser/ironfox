@@ -13,7 +13,7 @@ struct attack {
 };
 struct attack *head = NULL;
 
-#define MODULE_VERSION  "0.0.8 The Desert Fox"
+#define MODULE_VERSION  "0.0.9 The Desert Fox"
 
 //todo review the challenges and model ( also obfuscation)
 #define JS_MEDIUM_BODY "<html><head><title>IronFox</title></head><body><p style='text-align: center;'><span style='font-family:tahoma,geneva,sans-serif;'><span style='color: rgb(139, 69, 19);'><span style='font-size: 72px;'><span style='font-weight: bold;'>IronFox</span></span></span></span><br/><br/><span style='font-size:16px;'><font face='tahoma, geneva, sans-serif'><i>checking your request, This process is automatic and your browser redicret to your request content shortely.<br /><br/><span style='color:#000000;'>Please allow up for&nbsp;secondes...</span></i></font></span></p><p style='text-align: center;'>&nbsp;</p><hr/><p>&nbsp;</p><h2 style='text-align: center;'><span style='font-family:tahoma,geneva,sans-serif;'><span style='color:#2F4F4F;'><span style='font-size:14px;'>Powered by IronFox&nbsp;</span></span></span><br />&nbsp;</h2><script type='text/javascript' src='/iron.js'></script><script>var s='$bot_protection_enc_key$bot_protection_enc_salt$bot_protection_enc_iv$ironfox_cookie_enc_set$bot_protection_enc_salt';document.cookie ='IronFox=' + UTCString(s) + '; expires=' + TTL().toUTCString() + '; path=/';location.href = '$bot_protection_nexturl';</script></body></html>";
@@ -35,13 +35,15 @@ struct attack *head = NULL;
 #define ANOMALY_DETECTION_OFF     0
 #define ANOMALY_DETECTION_ON     1
 
-#define TOKEN_TTL_THRESHOLD_SECOND 3600  // second
-#define CSRF_BLOCKING_THRESHOLD 50      // 150 try
+//todo make configurable
+#define TOKEN_TTL_THRESHOLD_SECOND 30  // second
+#define CSRF_BLOCKING_THRESHOLD 30      // 150 try
 #define COOKIE_MAX_LENGTH 1024
 
 #define DEFAULT_COOKIE_NAME "kooki"
 #define TOKEN_NAME  "token="
 #define TOKEN_NAME_LENGTH  6
+
 #define KEY_NAME  "key="
 #define KEY_NAME_LENGTH  4
 

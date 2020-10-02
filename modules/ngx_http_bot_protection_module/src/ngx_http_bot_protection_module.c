@@ -2,13 +2,16 @@
   Innovera Technology; https://innovera.ir
   IronFox project, Version 0.0.4
 
-  Copyright (C) 2019-2020 Khalegh Salehi (khaleghsalehi@gmail.com).
+  Copyright (C) 2016-2020 Khalegh Salehi (khaleghsalehi@gmail.com).
   Copyright (C) 2011-2018 Eldar Zaitov (eldar@kyprizel.net).
 
   All rights reserved.
   This module is licenced under the terms of BSD license.
 
 */
+
+
+//todo obfuscate all string like token= kooki= javascripts etc ..
 
 #include <ngx_config.h>
 #include <ngx_core.h>
@@ -96,9 +99,7 @@ static ngx_conf_enum_t ngx_http_bot_protection_anomaly_detection_state[] = {
 };
 
 
-static in_addr_t get_remote_ip(ngx_http_request_t *req);
 
-static ngx_str_t get_user_agent(ngx_http_request_t *req);
 
 static ngx_int_t ngx_http_send_refresh(ngx_http_request_t *r, ngx_http_bot_protection_conf_t *conf);
 
@@ -384,20 +385,6 @@ static ngx_command_t ngx_http_bot_protection_commands[] = {
 };
 
 
-/**
- *  get hex and return oct
- */
-static unsigned char hexdigit2int(unsigned char xd) {
-    if (xd <= '9') return xd - '0';
-    xd = tolower(xd);
-    if (xd == 'a') return 10;
-    if (xd == 'b') return 11;
-    if (xd == 'c') return 12;
-    if (xd == 'd') return 13;
-    if (xd == 'e') return 14;
-    if (xd == 'f') return 15;
-    return 0;
-}
 
 
 static ngx_http_module_t ngx_http_bot_protection_module_ctx = {
@@ -1341,57 +1328,6 @@ ngx_http_bot_protection_nexturl_variable(ngx_http_request_t *r,
 }
 
 
-static u_char *
-ngx_cookie_digest_hex(u_char *dest, const u_char *buf, int buf_len) {
-    ngx_md5_t md5;
-    u_char md5_buf[MD5_DIGEST_LENGTH];
-
-    ngx_md5_init(&md5);
-    ngx_md5_update(&md5, buf, buf_len);
-    ngx_md5_final(md5_buf, &md5);
-
-    return ngx_hex_dump(dest, md5_buf, sizeof(md5_buf));
-}
-
-/**
- *  this method get params and calculate hash
- */
-static ngx_str_t
-ngx_http_get_ironfox_cid(ngx_http_request_t *req, ngx_str_t *KEY) {
-    u_char *tmpcrc_str;
-//    ngx_md5_t tmpmd5;
-//    u_char tmphash[16] = {'\0'};
-
-    ngx_str_t tmpua;
-    in_addr_t tmpip;
-    u_char *finalhash;
-
-    tmpip = get_remote_ip(req);
-    tmpua = get_user_agent(req);
-
-    tmpcrc_str = ngx_pcalloc(req->pool, tmpua.len + 19);//alloc n
-    finalhash = ngx_pcalloc(req->pool, tmpua.len + 19);//alloc n
-    ngx_sprintf(tmpcrc_str, "%ul%s%s", tmpip, tmpua.data, KEY);
-    ngx_log_debug1(NGX_LOG_DEBUG_HTTP,
-                   req->connection->log,
-                   0,
-                   "bot_protection tmpcrc_str md5 raw value %s",
-                   tmpcrc_str);
-    ngx_cookie_digest_hex(finalhash, tmpcrc_str, ngx_strlen(tmpcrc_str));
-
-    ngx_pfree(req->pool, tmpcrc_str);//free n
-
-    ngx_log_debug1(NGX_LOG_DEBUG_HTTP,
-                   req->connection->log,
-                   0,
-                   "bot_protection [%s] tmpcrc hashed md5 value",
-                   finalhash);
-    ngx_str_t res;
-    res.data = finalhash;
-    ngx_pfree(req->pool, finalhash);//free n
-    return res;
-}
-
 
 struct attack *find(ngx_http_request_t *r, char key[]) {
     struct attack *current = head;
@@ -1436,7 +1372,7 @@ int get_suspected_len() {
     return length;
 }
 
-struct attack *pop_attack(ngx_http_request_t *r, char *key) {
+int  *pop_attack(ngx_http_request_t *r, char *key) {
     struct attack *current = head;
     struct attack *previous = NULL;
     if (head == NULL) {
@@ -1458,6 +1394,7 @@ struct attack *pop_attack(ngx_http_request_t *r, char *key) {
     }
     ngx_log_debug(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                   "bot_protection  token %s revoked from suspected list successfully.", key);
+    return (int *) 1;
 }
 
 int push_attack(ngx_http_request_t *r, char key[], int count) {
@@ -1486,8 +1423,9 @@ int decrypt_token(ngx_http_request_t *r, unsigned char *ciphertext, int cipherte
                   ciphertext_len, key, strlen((const char *) key), iv, strlen((const char *) iv));
 
     /* Create and initialise the context */
-    if (!(ctx = EVP_CIPHER_CTX_new()))
+    if (!(ctx = EVP_CIPHER_CTX_new())) {
         ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection error init evp context");
+    }
 
     /*
      * Initialise the decryption operation. IMPORTANT - ensure you use a key
@@ -1496,24 +1434,27 @@ int decrypt_token(ngx_http_request_t *r, unsigned char *ciphertext, int cipherte
      * IV size for *most* modes is the same as the block size. For AES this
      * is 128 bits
      */
-    if (1 != EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv))
+    if (1 != EVP_DecryptInit_ex(ctx, EVP_aes_256_cbc(), NULL, key, iv)) {
         ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                        "bot_protection error init cvp and context decryption");
+    }
 
     /*
      * Provide the message to be decrypted, and obtain the plaintext output.
      * EVP_DecryptUpdate can be called multiple times if necessary.
      */
-    if (1 != EVP_DecryptUpdate(ctx, plaintext, &len, ciphertext, ciphertext_len))
+    if (1 != EVP_DecryptUpdate(ctx, plaintext, &len, ciphertext, ciphertext_len)) {
         ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection error init evp decrypt update");
+    }
     plaintext_len = len;
 
     /*
      * Finalise the decryption. Further plaintext bytes may be written at
      * this stage.
      */
-    if (1 != EVP_DecryptFinal_ex(ctx, plaintext + len, &len))
+    if (1 != EVP_DecryptFinal_ex(ctx, plaintext + len, &len)) {
         ngx_log_debug0(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection error init evp decrypt finalize");
+    }
     plaintext_len += len;
 
     /* Clean up */
@@ -1752,8 +1693,8 @@ ngx_http_bot_protection_get_uid(ngx_http_request_t *r, ngx_http_bot_protection_c
 
         int cookie_len = 1024;//todo 512 engouh
         char cookie_container[cookie_len];
-        memset(cookie_container, 0, cookie_len + 1);
-        ngx_snprintf(cookie_container, cookie_len, "%V", &cookies[n]->value);
+        memset(cookie_container, 0, cookie_len);
+        ngx_snprintf((unsigned char *)cookie_container, cookie_len, "%V", &cookies[n]->value);
         cookie_container[cookie_len + 1] = '\0';
         ngx_log_debug1(NGX_LOG_DEBUG_HTTP, r->connection->log, 0, "bot_protection cookie container value -> %s",
                        cookie_container);
@@ -1836,12 +1777,13 @@ ngx_http_bot_protection_get_uid(ngx_http_request_t *r, ngx_http_bot_protection_c
                               aes_iv_str, uiv, strlen((const char *) uiv));
 
                 char payload[114], *pos = payload;
+                //memset(payload,0,strlen(payload));
                 j = 0;
                 for (int k = 48; k < 144; ++k) {
                     sprintf(&payload[j], "%c", token[k]);
                     j++;
                 }
-                payload[114] = '\0';
+                //payload[114] = '\0';
 
 
                 j = 0;
@@ -1884,9 +1826,7 @@ ngx_http_bot_protection_get_uid(ngx_http_request_t *r, ngx_http_bot_protection_c
                 struct timeval tv;
                 struct tm *server_ts;
                 gettimeofday(&tv, NULL);
-                unsigned long long get_now =
-                        (unsigned long long) (tv.tv_sec) * 1000 +
-                        (unsigned long long) (tv.tv_usec) / 1000;
+
                 server_ts = localtime((const time_t *) &tv);
                 ngx_log_debug(NGX_LOG_DEBUG_HTTP, r->connection->log, 0,
                               "bot_protection get server timestamp =>  %02d:%02d:%02d", server_ts->tm_hour,
@@ -2153,21 +2093,7 @@ ngx_http_bot_protection_add_variables(ngx_conf_t *cf) {
 }
 
 
-static in_addr_t
-get_remote_ip(ngx_http_request_t *req) {
-    in_addr_t inaddr;
-    struct sockaddr_in *sin;
 
-    sin = (struct sockaddr_in *) req->connection->sockaddr;
-    inaddr = ntohl(sin->sin_addr.s_addr);
-
-    return inaddr;
-}
-
-static ngx_str_t
-get_user_agent(ngx_http_request_t *req) {
-    return req->headers_in.user_agent->value;
-}
 
 
 static void *
