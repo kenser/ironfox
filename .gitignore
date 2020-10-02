@@ -43,7 +43,7 @@
 
 # CMake
 cmake-build-*/
-
+nginx-1.19.2/*
 # Mongo Explorer plugin
 .idea/**/mongoSettings.xml
 
