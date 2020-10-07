@@ -1,5 +1,4 @@
 #!/bin/bash
-#export CFLAGS="-Wno-error=format-truncation"
 clear
 echo "
  _____                 ______
@@ -12,7 +11,7 @@ echo "
  By: Innovera Technology
      https://innovera.ir
  CodeName:
-     The Desert Fox (0.0.5)
+     The Desert Fox (0.0.9)
  "
 
 #define variables
