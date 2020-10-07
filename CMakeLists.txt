@@ -559,12 +559,12 @@ add_executable(ironfox
         nginx-1.19.2/LICENSE
         nginx-1.19.2/Makefile
         nginx-1.19.2/README
-        scripts/fingerPerRequest.js
-        scripts/Iron.js
-        scripts/setcookie.html
-        scripts/setCookieRedefined.html
-        scripts/tmp.html
-        scripts/tmp.js
+        html/development/template/fingerPerRequest.js
+        html/development/template/Iron.js
+        html/development/template/setcookie.html
+        html/development/template/setCookieRedefined.html
+        html/development/template/tmp.html
+        html/development/template/tmp.js
         CMakeLists.txt
         install.sh
         nginx.patch modules/ngx_http_bot_protection_module/src/ngx_http_bot_protection_module.h)
