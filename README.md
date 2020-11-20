@@ -1,6 +1,11 @@
+![](ironfox.png)
 
+                                REAL-TIME BOT PROTECTION CHALLENGE
 IronFox
 ==================
+
+https://innovera.ir
+
 IronFox is a real-time and high performance bot protection, that using Nginx as a reverse proxy. 
 With a stateless approach for request processing, simple architect and anomaly detection it is possible 
 for IronFox to handle millions session/second in distributed mode with zero latency.
@@ -16,14 +21,9 @@ for IronFox to handle millions session/second in distributed mode with zero late
     - [x] basic web dashboard 
     - [ ] enhancement 
 - Documents
-    - [ ] Wiki
+    - [x] Wiki
     
     
-
-    
-     
-        
-
 release:  0.0.9 
 
 ### Setup and configuration
@@ -38,13 +38,17 @@ With technology development and complexity of cyberattack strategies, the tradit
 defence in preventing cyberattacks. 
 The first-generation firewalls and intrusion detection systems (IDS) used to meet the security requirements of all kinds of businesses.
 The second generation of security products and solutions including Web Application Firewalls (WAF) also have played an acceptable role in cyberspace for a while.
+
 Securing e-commerce, web applications and mobile applications are crucial and even though the second and third generation of security techniques (IDS, IDP, NGF) have 
 been developed, bot and botnet attacks such as Denial of Service (DoS) attacks and Distributed Denial of Service (DDoS) attacks are still concerning as challenges in 
 cyberspace and online businesses security. 
+
 According to published reports, botnet attacks or more generally botnet exploitation have caused irreparable damages for e-commerce and information exchange spaces. 
 The new generation of bots is intelligent attacks which their detection and identification are of great importance and complication.
 Various solutions and articles have been proposed and published to confront bots and botnets. For instance, tracking the master (source of attacks) 
-and deactivating the slaves (bots) are two proposed methodologies when tackling DoS and DDoS attacks. Nonetheless, these methods are laborious or in most cases almost 
+and deactivating the slaves (bots) are two proposed methodologies when tackling DoS and DDoS attacks. 
+
+Nonetheless, these methods are laborious or in most cases almost 
 impossible to perform.IronFox is a high-performance bot protection with sagacity in identifying and blocking the bots existing in layers of web applications (7th layer), 
 and capability of using new approaches to employ operational services and executive environments in an in-line form. This article is going to have a look at the content of bots, 
 their structure and attack and introduce the suggested solutions to oppose them.
@@ -52,9 +56,12 @@ their structure and attack and introduce the suggested solutions to oppose them.
 ### What Is a Bot?
 A bot is a software application that is designed to fulfil various purposes and perform different tasks. For example, crawler ( as a bots) help search engines to
 browse the web and index information from websites. Bots can be both legitimate, such as search engines crawler (e.g., Google), and malicious, like the crawlers
-which exploit broken authentication or access control of a weak web application or an online service. These malicious crawlers steal data from the server and make
+which exploit broken authentication or access control of a weak web application or an online service. 
+These malicious crawlers steal data from the server and make
 server source and services inaccessible by generating web traffic and putting pressure on the server. They also have many other nefarious capabilities, such as 
-automatic testing and exploiting one vulnerability for a thousand destinations. Depending on its goal, a bot’s structure could be simple or complicated and intelligent.
+automatic testing and exploiting one vulnerability for a thousand destinations. 
+
+Depending on its goal, a bot’s structure could be simple or complicated and intelligent.
 Currently, business development has left no choice but to accept bot prevalence and to find solutions for their recognition and classification. For example, search engine 
 crawlers cannot be excluded from indexing websites, using techniques such as Captcha. On the other hand, permitting destructive bots to remain active may lead to a severe 
 decline in the quality of online services and possibly render those services inaccessible for users. Therefore, to prevent and block corrupt attacks, solutions must be 
@@ -82,11 +89,26 @@ In general, (Application Layer) bots can be divided into four groups:
 
 ### Bot Challenges and Their Current Confrontation Methods 
 
-Without a doubt, firewalls and intrusion detection systems are known as some of the most important components in terms of defending and blocking cyberattacks. The aforementioned systems monitor attacks based on their patterns and the behaviour of their demands. Therefore, they don’t have an actual understanding of the sources of attacks and can’t distinguish whether the demand is made by a real user or a robot. In some cases, examination and recognition of bots by these systems is successful. Nevertheless, they are not able to find the source of demands and block the attacks when facing bots from the third and fourth generations because these bots can find a way around these systems. 
-In security architecture, finding, identifying and blocking the bots existing in 7th layer once posing in the network topology, are steps before the layer of security tools such as web application firewalls (e.g., WAF) or servers/online services and after network equipment presented in 3/4th layer. In such architecture only requests from authentic users will be sent to the next services and layers and the requests made by bots will be monitored and completely blocked.
-Bot attacks and their distributed form have the capacity of taking the security appliances, like web application firewalls and attack detections, out of the orbit. Moreover, they can cause race condition or an extreme QoS deduction in the above-mentioned system's functionality by creating numerous requests. It is necessary to trace and distinguish the requests from actual users and traffics and only the ones from users must be sent to the next layers and process chain.
-IronFox is a bot identification and blocking system with high processability which is capable of agent-less identification the source of requests and dividing them into the ones sent from legitimate users and the ones from robots. Also, it only sends the user’s requests towards the 7th layer security equipment and Back-End services.
-The notable point is that the mission of the 7th layer security techniques is not different from IronFox system. However, the aforementioned techniques are not able to confront complex bot attacks, analyse the source of the attack and the requests. Moreover, security equipment could have a severe decline in performance or could get bypassed or false positive.
+Without a doubt, firewalls and intrusion detection systems are known as some of the most important components in terms of defending and blocking cyberattacks. 
+The aforementioned systems monitor attacks based on their patterns and the behaviour of their demands. Therefore, they don’t have an actual understanding of the 
+sources of attacks and can’t distinguish whether the demand is made by a real user or a robot. In some cases, examination and recognition of bots by these systems 
+is successful. Nevertheless, they are not able to find the source of demands and block the attacks when facing bots from the third and fourth generations because 
+these bots can find a way around these systems. 
+In security architecture, finding, identifying and blocking the bots existing in 7th layer once posing in the network topology, are steps before the layer of security 
+tools such as web application firewalls (e.g., WAF) or servers/online services and after network equipment presented in 3/4th layer. In such architecture only requests 
+from authentic users will be sent to the next services and layers and the requests made by bots will be monitored and completely blocked.
+Bot attacks and their distributed form have the capacity of taking the security appliances, like web application firewalls and attack detections, out of the orbit.
+
+Moreover, they can cause race condition or an extreme QoS deduction in the above-mentioned system's functionality by creating numerous requests. It is necessary to trace 
+and distinguish the requests from actual users and traffics and only the ones from users must be sent to the next layers and process chain.
+IronFox is a bot identification and blocking system with high processability which is capable of agent-less identification the source of requests and dividing them into 
+the ones sent from legitimate users and the ones from robots.
+
+Also, it only sends the user’s requests towards the 7th layer security equipment and Back-End services.The notable point is that the mission of the 7th layer security 
+techniques is not different from IronFox system. However, the aforementioned techniques are not able to confront complex bot attacks, analyse the source of the attack 
+and the requests. 
+
+Moreover, security equipment could have a severe decline in performance or could get bypassed or false positive.
 
 
 ### Commercial and Open-Source Solutions
@@ -95,7 +117,9 @@ DataDome is one of the contenders and pioneers of technology companies in France
 intelligence-based methods and offers bot protection services. Other well-known companies such as Cloudflare and Imperva are also offering services like CDN and 
 e-commerce protection. Besides, F5 products provide the required modules for bot recognition and confrontation and protection of the server’s API.
 Cookie-test which has been designed and developed as a practical module for Nginx is an open-source solution. It evaluates and blocks invalid requests by creating 
-JavaScript challenge and setting Cookies on the user's browser. These methods are very easy to be dumped by the first-generation bots. By dumping the first request 
+JavaScript challenge and setting Cookies on the user's browser. 
+
+These methods are very easy to be dumped by the first-generation bots. By dumping the first request 
 headers (only once), decoding and setting Cookies, the attacker can resend the same number of requests towards the server (e.g., CSRF attacks including initialized 
 request headers and Cookie’s information). Since the valid information is sent to the server next time, such techniques can be easily bypassed. 
 To recognize and reject the malicious bots,  security systems are employing techniques such as inspecting the agent, IP address or database of attacks pattern.

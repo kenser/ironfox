@@ -57,6 +57,11 @@ Note: installer MUST be run with root privilege
   "
   exit 1
 fi
+
+#fix https://github.com/khaleghsalehi/ironfox/issues/1
+sudo mkdir /home/ironfox
+sudo chmod 755 -R  /home/ironfox
+
 echo "shutdown service and clean up path..."
 sudo rm -R $SETUP_PATH
 sudo rm -R nginx-1.19.2
